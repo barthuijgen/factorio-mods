@@ -1,0 +1,9 @@
+{
+  "name": "autobuild",
+  "version": "0.1.0",
+  "factorio_version": "0.14",
+  "title": "AutoBP",
+  "author": "Barry",
+  "homepage": "https://github.com/MakuraYami",
+  "description": "Experimental mod"
+}
