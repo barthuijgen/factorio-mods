@@ -1,16 +1,21 @@
+require("utils");
+
 local surface;
 local force;
+local center = {1, 1}; -- Position of center block
+local current_block_num;
+local current_block;
+local block_size = 40;
 
 -- Notes
--- spiral pos: https://jsfiddle.net/hth00dv9/7/
+-- spiral pos: https://jsfiddle.net/hth00dv9/8/
 -- Inspiration: https://imgur.com/a/Ewhsv
 
 script.on_load(function(event)
-  start();
+  -- start();
 end)
-
 script.on_init(function(event)
-  start();
+  -- start();
 end)
 
 function _log(...)
@@ -81,10 +86,10 @@ function blockCoord(n)
     local nx = 0;
     local ny = 0;
     local dir = i % 4;
-    if dir == 0 do ny = -1 end
-    elseif dir == 1 do nx = -1 end
-    elseif dir == 2 do ny = 1 end
-    elseif dir == 3 do nx = 1 end
+    if dir == 0 then ny = -1
+    elseif dir == 1 then nx = -1
+    elseif dir == 2 then ny = 1
+    elseif dir == 3 then nx = 1 end
     if n >= len then
       n = n - len;
       x = x + (len * nx);
@@ -96,24 +101,124 @@ function blockCoord(n)
     end
     i = i + 1;
   end
-  return {x, y};
+  return {center[1] + (x * block_size), center[2] + (y * block_size)};
 end
 
-function start()
-  script.on_event(defines.events.on_put_item, function()
+function buildGhostEntity(name, pos, data)
+  data = mergeTables(data, {
+    name = "entity-ghost",
+    inner_name = name
+  });
+  buildEntity(name, pos, data);
+end
+
+function buildEntity(name, position, data)
+  surface.create_entity(mergeTables({
+    name = name,
+    position = position,
+    force = force
+  }, data))
+end
+
+function buildRailAroundArea(area)
+  -- local curner_cutoff = 11; -> to make rounded corners
+  local curner_cutoff = 0;
+  local x = area[1][1] + curner_cutoff;
+  local y = area[1][2];
+  -- top line
+  while x < area[2][1] - curner_cutoff do
+    buildEntity("straight-rail", {x,y}, {direction = 2});
+    x = x + 2;
+  end
+  x = x + curner_cutoff;
+  -- right line
+  while y < area[2][2] do
+    buildEntity("straight-rail", {x,y}, {direction = 0});
+    y = y + 2;
+  end
+  -- bottom line
+  while x > area[1][1] do
+    buildEntity("straight-rail", {x,y}, {direction = 2});
+    x = x - 2;
+  end
+  -- left line
+  while y > area[1][2] do
+    buildEntity("straight-rail", {x,y}, {direction = 0});
+    y = y - 2;
+  end
+  -- top-left corner
+  buildEntity("curved-rail", {area[1][1] + 1, area[1][2] + 7}, {direction = 1});
+  buildEntity("curved-rail", {area[1][1] + 7, area[1][2] + 1}, {direction = 6});
+  buildEntity("straight-rail", {area[1][1] + 4, area[1][2] + 4}, {direction = 7});
+  -- top-right corner
+  buildEntity("curved-rail", {area[2][1] - 1, area[1][2] + 7}, {direction = 0});
+  buildEntity("curved-rail", {area[2][1] - 7, area[1][2] + 1}, {direction = 3});
+  buildEntity("straight-rail", {area[2][1] - 4, area[1][2] + 4}, {direction = 1});
+  -- bottom-left corner
+  buildEntity("curved-rail", {area[1][1] + 1, area[2][2] - 7}, {direction = 4});
+  buildEntity("curved-rail", {area[1][1] + 7, area[2][2] - 1}, {direction = 7});
+  buildEntity("straight-rail", {area[1][1] + 4, area[2][2] - 4}, {direction = 5});
+  -- bottom-right corner
+  buildEntity("curved-rail", {area[2][1] - 1, area[2][2] - 7}, {direction = 5});
+  buildEntity("curved-rail", {area[2][1] - 7, area[2][2] - 1}, {direction = 2});
+  buildEntity("straight-rail", {area[2][1] - 4, area[2][2] - 4}, {direction = 3});
+end
+
+function buildBlock()
+  -- Calculate block area
+  local block_area = {
+    {current_block[1], current_block[2]},
+    {current_block[1] + block_size, current_block[2] + block_size},
+  };
+
+  -- Clear ground floor
+  setTileArea("grass-dry", block_area);
+
+  -- Mark the area
+  buildRailAroundArea(block_area);
+
+  -- Find out what is in this block
+  local block_entities = {};
+  local entities = surface.find_entities(block_area);
+  for _, entity in pairs(entities) do
+    if entity.type == "tree" or entity.type == "simple-entity" or entity.type == "decorative" then
+      entity.destroy();
+    else
+      if block_entities[entity.name] == nil then
+        block_entities[entity.name] = 0;
+      end
+      block_entities[entity.name] = block_entities[entity.name] + 1;
+    end
+  end
+  _log("Block " .. current_block_num .. " (" .. current_block[1] .. "," .. current_block[2] .. "): ");
+  _log(block_entities);
+
+  current_block_num = current_block_num + 1;
+  current_block = blockCoord(current_block_num);
+end
+
+script.on_event(defines.events.on_put_item, function(event)
+  buildBlock();
+end)
+
+script.on_event(defines.events.on_tick, function(event)
+  if event.tick % 120 == 0 then
     if surface == nil then
       surface = game.surfaces['nauvis'];
       force = game.players[1].force;
+      current_block_num = 0;
+      current_block = blockCoord(current_block_num);
     end
-    
-    local bp = game.players[1].get_quickbar()[1];
+
+    -- buildBlock();
+
+    -- local bp = game.players[1].get_quickbar()[1];
     -- TODO: check invt-item validity
-    if bp.is_blueprint_setup() then
-      local rec = getBlueprintArea(bp)
-      _log(rec);
-      area = getAreaAtPostion(rec, {0, 0});
-      setTileArea("grass-dry", area);
-    end
-    
-  end)
-end
+    -- if bp.is_blueprint_setup() then
+    --  local rec = getBlueprintArea(bp)
+    --  _log(rec);
+    --  area = getAreaAtPostion(rec, {0, 0});
+    --  setTileArea("grass-dry", area);
+    --end
+  end
+end)
