@@ -115,11 +115,21 @@ function getBlueprintRailEntities(block_size)
   for _, entity in pairs(getRailTurn({area[2][1], area[2][2]}, "bottom-right")) do
     bp:add(entity);
   end
-  -- EXTRA items
-  bp:add({name = "roboport", position = {-radius/2,-radius/2}});
-  bp:add({name = "roboport", position = {radius/2,-radius/2}});
-  bp:add({name = "roboport", position = {-radius/2,radius/2}});
-  bp:add({name = "roboport", position = {radius/2,radius/2}});
+  -- Roboports
+  bp:add({name = "roboport", position = {-radius / 2, -radius / 2}});
+  bp:add({name = "roboport", position = {radius / 2, -radius / 2}});
+  bp:add({name = "roboport", position = {-radius / 2, radius / 2}});
+  bp:add({name = "roboport", position = {radius / 2, radius / 2}});
+  -- Electric
+  bp:add({name = "big-electric-pole", position = {-radius / 2, -radius / 2 + 3}});
+  bp:add({name = "big-electric-pole", position = {radius / 2, -radius / 2 + 3}});
+  bp:add({name = "big-electric-pole", position = {-radius / 2, radius / 2 - 3}});
+  bp:add({name = "big-electric-pole", position = {radius / 2, radius / 2 - 3}});
+
+  bp:add({name = "big-electric-pole", position = {0, -radius / 2}});
+  bp:add({name = "big-electric-pole", position = {radius / 2, 0}});
+  bp:add({name = "big-electric-pole", position = {0, radius / 2}});
+  bp:add({name = "big-electric-pole", position = {-radius / 2, 0}});
   return bp:get_entities();
 end
 
