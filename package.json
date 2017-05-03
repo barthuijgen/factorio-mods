@@ -1,0 +1,23 @@
+{
+  "name": "factorio-mods",
+  "version": "1.0.0",
+  "description": "Node build script to automatically zip mods",
+  "main": "build.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://barrykun@gitlab.com/barrykun/factorio.git"
+  },
+  "author": "Barrykun",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://gitlab.com/barrykun/factorio/issues"
+  },
+  "homepage": "https://gitlab.com/barrykun/factorio#README",
+  "dependencies": {
+    "adm-zip": "^0.4.7",
+    "readdirp": "^2.1.0"
+  }
+}
