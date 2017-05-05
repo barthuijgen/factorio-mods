@@ -21,7 +21,7 @@ script.on_load(function(event)
   end
 end)
 
-script.on_event(defines.events.on_built_entity, function(event)
+function onBuiltEntity(event)
   if event.created_entity.name == "spawn-belt" 
   or event.created_entity.name == "void-belt" then
     initalize_globals();
@@ -29,8 +29,19 @@ script.on_event(defines.events.on_built_entity, function(event)
     new_belt["entity"] = event.created_entity;
     new_belt["item"] = spawn_item;
     new_belt["chest"] = nil;
+    new_belt["enabled"] = true;
     table.insert(belts, new_belt)
     find_chest(new_belt);
+  end
+end
+
+
+script.on_event(defines.events.on_marked_for_deconstruction, function(event)
+  for k, belt in ipairs(belts) do
+    if belt.entity == event.entity then
+      belt.enabled = false;
+      _print(belt);
+    end
   end
 end)
 
@@ -61,7 +72,6 @@ function destroy_globals()
     script.on_event(defines.events.on_tick, nil);
   end
 end
-
 
 function get_circuit_signals(entity)
   local signals = {};
@@ -148,7 +158,7 @@ function tick_belts(tick)
       destroy_globals();
     else
 
-      if belt.entity.name == "spawn-belt" then
+      if belt.entity.name == "spawn-belt" and belt.enabled then
         -- On a lower interval rate, look for chests behind the belt to copy item type
         if tick.tick % chest_detection_rate == 0 then
           find_chest(belt);
@@ -177,3 +187,6 @@ function tick_belts(tick)
     end
   end
 end
+
+script.on_event(defines.events.on_built_entity, onBuiltEntity);
+script.on_event(defines.events.on_robot_built_entity, onBuiltEntity);

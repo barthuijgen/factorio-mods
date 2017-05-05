@@ -26,6 +26,8 @@ async function watch(mod) {
   const info = JSON.parse(fs.readFileSync(path.join(mod, 'info.json'), 'utf8'));
   const destination = path.join(modDir, `${info.name}_${info.version}`);
 
+  await promisify(fs.mkdir, destination).catch(() => {});
+
   console.log('Clearing old files...');
   await clearDirectory(destination);
   console.log('Copying new files...');

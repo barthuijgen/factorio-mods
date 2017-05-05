@@ -5,9 +5,9 @@ data:extend({
     icon = "__spawn-belt__/graphics/icons/spawn-belt.png",
     flags = {"goes-to-quickbar"},
     subgroup = "belt",
-    order = "a[express-transport-belt]-d[spawn-belt]",
+    order = "a[transport-belt]-a[spawn-belt]",
     place_result = "spawn-belt",
-    stack_size = 50
+    stack_size = 100
   },
 	{
     type = "item",
@@ -15,8 +15,8 @@ data:extend({
     icon = "__spawn-belt__/graphics/icons/void-belt.png",
     flags = {"goes-to-quickbar"},
     subgroup = "belt",
-    order = "c[spawn-belt]-d[void-belt]",
+    order = "a[spawn-belt]-a[void-belt]",
     place_result = "void-belt",
-    stack_size = 50
+    stack_size = 100
 	}
 })

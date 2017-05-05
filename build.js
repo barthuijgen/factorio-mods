@@ -24,7 +24,7 @@ async function build(mod) {
   const filename = `${info.name}_${info.version}`;
   await createBuildDirectory(dir);
   await zip(mod, dir, filename);
-  process.exit();
+  // process.exit();
 }
 
 async function createBuildDirectory() {
@@ -54,7 +54,9 @@ function zip(directory, destination, filename) {
       }));
     }).on('end', () => {
       Promise.all(progress).then(() => {
-        zip.writeZip(path.resolve(destination, `${filename}.zip`));
+        zip.writeZip(path.resolve(destination, `${filename}.zip`), () => {
+          console.log('test');
+        });
         console.log(`Done: ${path.resolve(destination, `${filename}.zip`)}`);
         resolve();
       });
