@@ -7,6 +7,7 @@ local center_chest;
 local current_block_num;
 local current_block;
 local block_size = 100;
+local block_margin = 18;
 local block_area;
 
 -- Notes:
@@ -17,12 +18,13 @@ local block_area;
 -- script.on_init(function(event) end)
 
 function setNextBlock()
+  local size = block_size + block_margin;
   current_block_num = current_block_num or -1;
   current_block_num = current_block_num + 1;
   current_block = blockCoord(current_block_num);
   block_area = {
-    {current_block[1] - (block_size / 2), current_block[2] - (block_size / 2)},
-    {current_block[1] + (block_size / 2), current_block[2] + (block_size / 2)},
+    {current_block[1] - (size / 2), current_block[2] - (size / 2)},
+    {current_block[1] + (size / 2), current_block[2] + (size / 2)},
   };
   if center_chest == nil then
     center_chest = getCenterChest();
@@ -101,7 +103,8 @@ function blockCoord(n)
     end
     i = i + 1;
   end
-  return {center[1] + (x * block_size), center[2] + (y * block_size)};
+  local size = block_size + block_margin;
+  return {center[1] + (x * size), center[2] + (y * size)};
 end
 
 function buildGhostEntity(name, pos, data)
@@ -193,7 +196,7 @@ function buildBlueprint(blueprint, autobuild)
 end
 
 script.on_event(defines.events.on_put_item, function(event)
-  buildBlock();
+  -- buildBlock();
 end)
 
 script.on_event(defines.events.on_tick, function(event)
@@ -205,7 +208,9 @@ script.on_event(defines.events.on_tick, function(event)
   end
 
   if event.tick % 120 == 0 then
-    -- buildBlock();
+    if current_block_num < 9 then
+      buildBlock();
+    end
 
     -- local bp = game.players[1].get_quickbar()[1];
     -- TODO: check invt-item validity
