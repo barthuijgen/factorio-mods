@@ -11,7 +11,7 @@ This copies the mod over to the factorio mod directory and automatically applies
 ```
 node watch <directory>
 ```
-For Windows `%HOME%/.factorio/mods`
+For Windows `%APPDATA%/.factorio/mods`
 
 For Linux `~/.factorio/mods`
 
