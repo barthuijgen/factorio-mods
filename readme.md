@@ -9,7 +9,7 @@ node build <directory>
 #### watch a directory.
 This copies the mod over to the factorio mod directory and automatically applies changes.
 ```
-node build <directory>
+node watch <directory>
 ```
 For Windows `%HOME%/.factorio/mods`
 
