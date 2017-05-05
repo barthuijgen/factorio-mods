@@ -4,6 +4,7 @@
   "factorio_version": "0.13.0",
   "title": "No Deconstruct",
   "author": "Barry",
-  "homepage": "https://github.com/MakuraYami/factorio-mods/tree/master/no-deconstruc",
+  "homepage": "https://github.com/MakuraYami/factorio-mods/tree/master/no-deconstruct",
+  "license": "https://github.com/MakuraYami/factorio-mods/blob/master/LICENSE",
   "description": "You can no longer deconstruct entities you've placed."
 }

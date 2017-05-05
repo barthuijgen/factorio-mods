@@ -4,6 +4,7 @@
   "factorio_version": "0.14",
   "title": "AutoBP",
   "author": "Barry",
-  "homepage": "https://github.com/MakuraYami",
+  "homepage": "https://github.com/MakuraYami/factorio-mods/tree/master/autobuild",
+  "license": "https://github.com/MakuraYami/factorio-mods/blob/master/LICENSE",
   "description": "Experimental mod"
 }

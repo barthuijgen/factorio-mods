@@ -12,5 +12,13 @@ This copies the mod over to the factorio mod directory and automatically applies
 node build <directory>
 ```
 For Windows `%HOME%/.factorio/mods`
+
 For Linux `~/.factorio/mods`
+
 For Mac `not supported`
+
+#### Issues
+For suggestions/comments/feedback/bug-reports please create an issue, thank you!
+
+#### License
+All mods fall under the Mozilla Public License Version 2.0, for details refer to the LICENSE file.

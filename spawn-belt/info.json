@@ -5,5 +5,6 @@
   "title": "Spawn Belt",
   "author": "Barry",
   "homepage": "https://github.com/MakuraYami/factorio-mods/tree/master/spawn-belt",
+  "license": "https://github.com/MakuraYami/factorio-mods/blob/master/LICENSE",
   "description": "Create spawn & void belts to test throughput"
 }
