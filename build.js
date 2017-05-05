@@ -1,12 +1,8 @@
 const fs = require('fs');
 const path = require('path');
-const readline = require('readline');
 const exec = require('child_process').exec;
 const AdmZip = require('adm-zip');
 const readdirp = require('readdirp');
-
-const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
-const isWin = /^win/.test(process.platform);
 
 function main() {
   if (!process.argv[2]) {
@@ -28,7 +24,7 @@ async function build(mod) {
   const filename = `${info.name}_${info.version}`;
   await createBuildDirectory(dir);
   await zip(mod, dir, filename);
-  // process.exit();
+  process.exit();
 }
 
 async function createBuildDirectory() {
