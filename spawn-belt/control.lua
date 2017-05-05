@@ -1,7 +1,8 @@
 local belts;
 local spawn_item = "iron-ore";
-local chest_detection_rate = 60;
-local circuit_detection_rate = 10;
+local chest_detection_rate = 29;
+local chest_clear_rate = 3;
+local circuit_detection_rate = 30;
 
 remote.add_interface("spawnbelt", {
   setitem = function(item)
@@ -29,6 +30,7 @@ script.on_event(defines.events.on_built_entity, function(event)
     new_belt["item"] = spawn_item;
     new_belt["chest"] = nil;
     table.insert(belts, new_belt)
+    find_chest(new_belt);
   end
 end)
 
@@ -91,74 +93,87 @@ function get_circuit_signals(entity)
   return signals;
 end
 
+function find_chest(belt)
+  x = belt.entity.position.x;
+  y = belt.entity.position.y;
+  if belt.entity.direction == 0 then
+    y = y + 1;
+  elseif belt.entity.direction == 2 then
+    x = x - 1;
+  elseif belt.entity.direction == 4 then
+    y = y - 1;
+  elseif belt.entity.direction == 6 then
+    x = x + 1;
+  end
+
+  chests = belt.entity.surface.find_entities_filtered({position = {x,y}, type="container"});
+  if #chests > 0 then
+    belt.chest = chests[1];
+    inventory = belt.chest.get_inventory(defines.inventory.chest);
+    if inventory ~= nil
+    and inventory.valid == true 
+    and inventory.is_empty() == false 
+    and inventory[1].valid == true
+    and inventory[1].valid_for_read == true then
+      belt.item = inventory[1].name;
+    end
+  end
+  return belt;
+end
+
+function find_signal(belt)
+  -- Find all signals given to this entity
+  signals = get_circuit_signals(belt.entity);
+
+  if #signals > 0 then
+    -- Look for the highest signal
+    highest_count = nil;
+    for _, signal in pairs(signals) do
+      if highest_count == nil or highest_count.count < signal.count then
+        highest_count = signal;
+      end
+    end
+    -- Set belt spawn to this signal
+    if highest_count ~= nil then
+      belt.item = highest_count.name;
+    end
+  end
+  return belt;
+end
+
 function tick_belts(tick)
   for k, belt in ipairs(belts) do
     if belt.entity.valid ~= true then
-      table.remove(belts, k)
+      table.remove(belts, k);
       destroy_globals();
     else
+
       if belt.entity.name == "spawn-belt" then
-        
         -- On a lower interval rate, look for chests behind the belt to copy item type
         if tick.tick % chest_detection_rate == 0 then
-          x = belt.entity.position.x;
-          y = belt.entity.position.y;
-          if belt.entity.direction == 0 then
-            y = y + 1;
-          elseif belt.entity.direction == 2 then
-            x = x - 1;
-          elseif belt.entity.direction == 4 then
-            y = y - 1;
-          elseif belt.entity.direction == 6 then
-            x = x + 1;
-          end
-
-          chests = belt.entity.surface.find_entities_filtered({position = {x,y}, type="container"});
-          if #chests > 0 then
-            inventory = chests[1].get_inventory(defines.inventory.chest);
-            if inventory ~= nil
-            and inventory.valid == true 
-            and inventory.is_empty() == false 
-            and inventory[1].valid == true
-            and inventory[1].valid_for_read == true then
-              belt.item = inventory[1].name;
-            end
-          end
+          find_chest(belt);
         end
 
         if tick.tick % circuit_detection_rate == 0 then
-          -- Find all signals given to this entity
-          signals = get_circuit_signals(belt.entity);
+          find_signal(belt)
+        end
 
-          if #signals > 0 then
-            -- Look for the highest signal
-            highest_count = nil;
-            for _, signal in pairs(signals) do
-              if highest_count == nil or highest_count.count < signal.count then
-                highest_count = signal;
-              end
-            end
-            -- Set belt spawn to this signal
-            if highest_count ~= nil then
-              belt.item = highest_count.name;
-            end
+        if belt.item then
+          -- Fill the belt with selected item
+          line1 = belt.entity.get_transport_line(1);
+          if line1.can_insert_at_back() then
+            line1.insert_at_back({name = belt.item});
+          end
+          line2 = belt.entity.get_transport_line(2);
+          if line2.can_insert_at_back() then
+            line2.insert_at_back({name = belt.item});
           end
         end
-        
-        -- Fill the belt with selected item
-        line1 = belt.entity.get_transport_line(1);
-        if line1.can_insert_at_back() then
-          line1.insert_at_back({name = belt.item});
-        end
-        line2 = belt.entity.get_transport_line(2);
-        if line2.can_insert_at_back() then
-          line2.insert_at_back({name = belt.item});
-        end
-
-      elseif belt.entity.name == "void-belt" then
+      elseif belt.entity.name == "void-belt"  and tick.tick % chest_clear_rate == 0 then
         belt.entity.get_transport_line(1).clear();
         belt.entity.get_transport_line(2).clear();
       end
+
     end
   end
 end
