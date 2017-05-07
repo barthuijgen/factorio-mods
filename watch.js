@@ -1,4 +1,3 @@
-// TODO: watch mod directory and auto-copy changes to factorio mod dir
 const fs = require('fs');
 const path = require('path');
 const readdirp = require('readdirp');
@@ -110,7 +109,7 @@ function main() {
 
 function getModDirectory() {
   if (process.platform == 'win32' && process.env.APPDATA) {
-    return path.resolve(process.env.APPDATA, '.factorio/mods');
+    return path.resolve(process.env.APPDATA, 'Factorio/mods');
   } else if (process.env.HOME) {
     return path.resolve(process.env.HOME, '.factorio/mods');
   }

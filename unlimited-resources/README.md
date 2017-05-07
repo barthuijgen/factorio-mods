@@ -4,6 +4,9 @@ Unlimited Resources
 Ore patches cannot empty and are unlimted and automatically refill, configure numbers in mod settings!
 
 # Changelog
+### 1.0.6
+* Added a disable mod option, resets all ores/oil to original values
+* Mod now refills when added to a existing save on startup
 ### 1.0.5
 * Removed remote call command
 * Refill now happens on set interval

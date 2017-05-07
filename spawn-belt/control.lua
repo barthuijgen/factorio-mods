@@ -35,7 +35,6 @@ function onBuiltEntity(event)
   end
 end
 
-
 script.on_event(defines.events.on_marked_for_deconstruction, function(event)
   for k, belt in ipairs(belts) do
     if belt.entity == event.entity then
@@ -55,7 +54,6 @@ function _print(...)
     player.print(string);
   end
 end
-
 
 function initalize_globals()
   if global.belts == nil or belts == nil then
