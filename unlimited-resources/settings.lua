@@ -25,7 +25,7 @@ data:extend({
     name = "resource-refill-disabled",
     type = "bool-setting",
     setting_type = "runtime-global",
-    default_value = false,
+    default_value = true,
     order = "d"
   },
 });
