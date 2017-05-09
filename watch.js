@@ -91,7 +91,7 @@ function clearDirectory(directory) {
 
 function main() {
   if (!getModDirectory()) {
-    return console.log('Failed to find mod directory')
+    return console.log('Failed to find mod directory');
   }
   if (!process.argv[2]) {
     return console.log('Please supply a mod directory name as argument');
@@ -108,6 +108,12 @@ function main() {
 }
 
 function getModDirectory() {
+  if (process.argv[3]) {
+    let dir = path.resolve(process.argv[3]);
+    let stats = fs.statSync(dir);
+    if (stats && stats.isDirectory()) return dir;
+    else return null;
+  }
   if (process.platform == 'win32' && process.env.APPDATA) {
     return path.resolve(process.env.APPDATA, 'Factorio/mods');
   } else if (process.env.HOME) {
