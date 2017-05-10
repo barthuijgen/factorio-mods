@@ -1,12 +1,12 @@
 module.exports = {
-  "copper-ore": {time: 0, ingredients: {}},
-  "iron-ore": {time: 0, ingredients: {}},
-  "stone": {time: 0, ingredients: {}},
-  "coal": {time: 0, ingredients: {}},
-  "light-oil": {time: 0, ingredients: {}},
-  "petroleum-gas": {time: 0, ingredients: {}},
-  "sulfuric-acid": {time: 0, ingredients: {}},
-  "lubricant": {time: 0, ingredients: {}},
+  "copper-ore": {category: "resource", time: 0, ingredients: {}},
+  "iron-ore": {category: "resource",time: 0, ingredients: {}},
+  "stone": {category: "resource",time: 0, ingredients: {}},
+  "coal": {category: "resource",time: 0, ingredients: {}},
+  "light-oil": {category: "chemistry", time: 0, ingredients: {}},
+  "petroleum-gas": {category: "chemistry", time: 0, ingredients: {}},
+  "sulfuric-acid": {category: "chemistry", time: 0, ingredients: {}},
+  "lubricant": {category: "chemistry", time: 0, ingredients: {}},
   "science-pack-1": {
     time: 5,
     ingredients: {
@@ -48,7 +48,6 @@ module.exports = {
     result_count: 2
   },
   "high-tech-science-pack": {
-
     time: 14,
     ingredients: {
       "battery": 1,
@@ -69,7 +68,7 @@ module.exports = {
     category: 'smelting',
     time: 3.5,
     ingredients: {
-      'copper-ore': 1
+      'iron-ore': 1
     }
   },
   "steel-plate": {
@@ -295,6 +294,7 @@ module.exports = {
     }
   },
   "solid-fuel": {
+    category: "chemistry", 
     time: 3,
     ingredients: {
       "light-oil": 10

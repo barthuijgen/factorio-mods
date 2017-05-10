@@ -1,0 +1,133 @@
+
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <title>Factorio cost calc</title>
+    <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.2/css/materialize.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  </head>
+  <body>
+    <nav>
+      <div class="nav-wrapper">
+        <a href="#" class="brand-logo">Factorio calc</a>
+      </div>
+    </nav>
+    <div class="row">
+      <div class="input-field col s1">
+        <input value="2000" id="science-pack-1" type="number" onChange="calculate()">
+        <label for="science-pack-1">science-pack-1</label>
+      </div>
+      <div class="input-field col s1">
+        <input value="2000" id="science-pack-2" type="number" onChange="calculate()">
+        <label for="science-pack-2">science-pack-2</label>
+      </div>
+      <div class="input-field col s1">
+        <input value="2000" id="science-pack-3" type="number" onChange="calculate()">
+        <label for="science-pack-3">science-pack-3</label>
+      </div>
+      <div class="input-field col s1">
+        <input value="0" id="military-science-pack" type="number" onChange="calculate()">
+        <label for="military-science-pack">military-science-pack</label>
+      </div>
+      <div class="input-field col s1">
+        <input value="2000" id="production-science-pack" type="number" onChange="calculate()">
+        <label for="production-science-pack">production-science-pack</label>
+      </div>
+      <div class="input-field col s1">
+        <input value="2000" id="high-tech-science-pack" type="number" onChange="calculate()">
+        <label for="high-tech-science-pack">high-tech-science-pack</label>
+      </div>
+      <div class="input-field col s1">
+        <input value="200" id="rocket-part" type="number" onChange="calculate()">
+        <label for="rocket-part">rocket-part</label>
+      </div>
+      <div class="input-field col s1">
+        <input value="2" id="satellite" type="number" onChange="calculate()">
+        <label for="satellite">satellite</label>
+      </div>
+    </div>
+    <div class="row">
+      <table>
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th>Amount required</th>
+            <th class="tooltipped" data-delay="0" data-tooltip="Total seconds a single crafter with 1 speed would take">Expected craft time</th>
+            <th class="tooltipped" data-delay="0" data-tooltip="based on per minute build and all crafters having 5.5 times speed">Crafters required</th>
+            <th class="tooltipped" data-delay="0" data-tooltip="Assumes +40% production = -40% cost">Production bonus</th>
+          </tr>
+        </thead>
+        <tbody id="data-table">
+        </tbody>
+      </table>
+    </div>
+    <script src="https://cdn.jsdelivr.net/lodash/4.17.4/lodash.min.js"></script>
+    <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.2/js/materialize.min.js"></script>
+    <script>
+      window.data = {"copper-ore":{"category":"resource","time":0,"ingredients":{}},"iron-ore":{"category":"resource","time":0,"ingredients":{}},"stone":{"category":"resource","time":0,"ingredients":{}},"coal":{"category":"resource","time":0,"ingredients":{}},"light-oil":{"category":"chemistry","time":0,"ingredients":{}},"petroleum-gas":{"category":"chemistry","time":0,"ingredients":{}},"sulfuric-acid":{"category":"chemistry","time":0,"ingredients":{}},"lubricant":{"category":"chemistry","time":0,"ingredients":{}},"science-pack-1":{"time":5,"ingredients":{"copper-plate":1,"iron-gear-wheel":1}},"science-pack-2":{"time":6,"ingredients":{"inserter":1,"transport-belt":1}},"science-pack-3":{"time":12,"ingredients":{"advanced-circuit":1,"engine-unit":1,"electric-mining-drill":1}},"military-science-pack":{"time":10,"ingredients":{"piercing-rounds-magazine":1,"grenade":1,"gun-turret":1},"result_count":2},"production-science-pack":{"time":14,"ingredients":{"electric-engine-unit":1,"assembling-machine-1":1,"electric-furnace":1},"result_count":2},"high-tech-science-pack":{"time":14,"ingredients":{"battery":1,"processing-unit":3,"speed-module":1,"copper-cable":30},"result_count":2},"copper-plate":{"category":"smelting","time":3.5,"ingredients":{"copper-ore":1}},"iron-plate":{"category":"smelting","time":3.5,"ingredients":{"iron-ore":1}},"steel-plate":{"category":"smelting","time":17.5,"ingredients":{"iron-plate":5}},"stone-brick":{"time":3.5,"ingredients":{"stone":2}},"iron-gear-wheel":{"time":0.5,"ingredients":{"iron-plate":2}},"copper-cable":{"time":0.5,"ingredients":{"copper-plate":1},"result_count":2},"plastic-bar":{"category":"chemistry","time":1,"ingredients":{"petroleum-gas":20,"coal":1},"result_count":2},"battery":{"category":"chemistry","time":5,"ingredients":{"sulfuric-acid":20,"iron-plate":1,"copper-plate":1}},"inserter":{"time":0.5,"ingredients":{"electronic-circuit":1,"iron-gear-wheel":1,"iron-plate":1}},"electronic-circuit":{"time":0.5,"ingredients":{"iron-plate":1,"copper-cable":3}},"advanced-circuit":{"time":6,"ingredients":{"electronic-circuit":2,"plastic-bar":2,"copper-cable":2}},"processing-unit":{"time":10,"ingredients":{"electronic-circuit":20,"advanced-circuit":2,"sulfuric-acid":5}},"pipe":{"time":0.5,"ingredients":{"iron-plate":1}},"transport-belt":{"time":0.5,"ingredients":{"iron-plate":1,"iron-gear-wheel":1},"result_count":2},"engine-unit":{"time":10,"ingredients":{"steel-plate":1,"iron-gear-wheel":1,"pipe":2}},"electric-engine-unit":{"category":"crafting-with-fluid","time":10,"ingredients":{"engine-unit":1,"lubricant":15,"electronic-circuit":2}},"grenade":{"time":8,"ingredients":{"iron-plate":5,"coal":10}},"gun-turret":{"time":8,"ingredients":{"iron-gear-wheel":10,"copper-plate":10,"iron-plate":20}},"electric-mining-drill":{"time":2,"ingredients":{"electronic-circuit":3,"iron-gear-wheel":5,"iron-plate":10}},"assembling-machine-1":{"time":0.5,"ingredients":{"electronic-circuit":3,"iron-gear-wheel":5,"iron-plate":9}},"electric-furnace":{"time":5,"ingredients":{"steel-plate":10,"advanced-circuit":5,"stone-brick":10}},"speed-module":{"time":15,"ingredients":{"advanced-circuit":5,"electronic-circuit":5}},"firearm-magazine":{"time":1,"ingredients":{"iron-plate":4}},"piercing-rounds-magazine":{"time":3,"ingredients":{"firearm-magazine":1,"steel-plate":1,"copper-plate":5}},"solar-panel":{"time":10,"ingredients":{"steel-plate":5,"electronic-circuit":15,"copper-plate":5}},"accumulator":{"time":10,"ingredients":{"iron-plate":2,"battery":5}},"radar":{"time":0.5,"ingredients":{"electronic-circuit":5,"iron-gear-wheel":5,"iron-plate":10}},"rocket-part":{"time":3,"ingredients":{"low-density-structure":10,"rocket-fuel":10,"rocket-control-unit":10}},"satellite":{"time":3,"ingredients":{"low-density-structure":100,"solar-panel":100,"accumulator":100,"radar":5,"processing-unit":100,"rocket-fuel":50}},"low-density-structure":{"time":30,"ingredients":{"steel-plate":10,"copper-plate":5,"plastic-bar":5}},"rocket-fuel":{"time":30,"ingredients":{"solid-fuel":10}},"solid-fuel":{"category":"chemistry","time":3,"ingredients":{"light-oil":10}},"rocket-control-unit":{"time":30,"ingredients":{"processing-unit":1,"speed-module":1}}};
+    </script>
+    <script>
+      function calculate(){
+        console.log('calculating...');
+        let produce = {
+          'science-pack-1': parseInt(document.getElementById('science-pack-1').value, 10) || 0,
+          'science-pack-2': parseInt(document.getElementById('science-pack-2').value, 10) || 0,
+          'science-pack-3': parseInt(document.getElementById('science-pack-3').value, 10) || 0,
+          'military-science-pack': parseInt(document.getElementById('military-science-pack').value, 10) || 0,
+          'production-science-pack': parseInt(document.getElementById('production-science-pack').value, 10) || 0,
+          'high-tech-science-pack': parseInt(document.getElementById('high-tech-science-pack').value, 10) || 0,
+          'rocket-part': parseInt(document.getElementById('rocket-part').value, 10) || 0,
+          'satellite': parseInt(document.getElementById('satellite').value, 10) || 0,
+        };
+
+        let costs = {
+          items: {},
+        };
+
+        let categoryEffects = {
+          'smelting': { productivity: 20 },
+          'crafting-with-fluid': { productivity: 40 },
+          'chemistry': { productivity: 30 },
+          'crafting': {productivity: 40},
+          'resource': {productivity: 0},
+          'rest': { productivity: 40 },
+        };
+
+        _.forOwn(produce, (times, item_name) => {
+          let item = data[item_name];
+          addIngredientCosts(item, times);
+        });
+
+        function addIngredientCosts(item, times) {
+          _.forOwn(item.ingredients, (amount, name) => {
+            let subitem = data[name];
+            // Check effect bonus
+            let effects = categoryEffects[subitem.category] || categoryEffects.rest;
+            // Set data
+            if (!costs.items[name]) {
+              costs.items[name] = {
+                time: 0,
+                amount: 0,
+                crafters: 0,
+                production_bonus: effects.productivity
+              };
+            }
+            let add = (amount * times) * (1 - effects.productivity / 100);
+            costs.items[name].time += (add * subitem.time);
+            costs.items[name].amount += add;
+            costs.items[name].crafters = Math.ceil(costs.items[name].time / 60 / 5.5);
+            addIngredientCosts(data[name], times * amount);
+          });
+        }
+        let html = '';
+        _.forOwn(costs.items, (item, name) => {
+          html += `<tr><td>${name}</td><td>${item.amount}</td><td>${item.time}</td><td>${item.crafters}</td><td>${item.production_bonus}</td></tr>`;
+        });
+        document.getElementById('data-table').innerHTML = html;
+      }
+      calculate();
+    </script>
+  </body>
+</html>
