@@ -12,6 +12,9 @@ With circuit network
 Connect the spawn belt using a red or green wire and send a signal to it, it will spawn the item with the highest signal count, regardless of green/red color.
 
 # Changelog
+### 1.0.6
+* Fixed crash when connecting circuit network with no signals
+* Fixed crash when deconstructing while globals were not initialized
 ### 1.0.5
 * Support for building by blueprint
 * Spawn-belt directly checks for chests when placed infront of one

@@ -35,12 +35,11 @@ function onBuiltEntity(event)
   end
 end
 
-
 script.on_event(defines.events.on_marked_for_deconstruction, function(event)
+  initalize_globals();
   for k, belt in ipairs(belts) do
     if belt.entity == event.entity then
       belt.enabled = false;
-      _print(belt);
     end
   end
 end)
@@ -56,12 +55,11 @@ function _print(...)
   end
 end
 
-
 function initalize_globals()
   if global.belts == nil or belts == nil then
     global.belts = {};
     belts = global.belts;
-    script.on_event(defines.events.on_tick, tick_belts)
+    script.on_event(defines.events.on_tick, tick_belts);
   end
 end
 
@@ -78,7 +76,7 @@ function get_circuit_signals(entity)
   network = nil;
   network_red = entity.get_circuit_network(defines.wire_type.red);
   network_green = entity.get_circuit_network(defines.wire_type.green);
-  if network_red ~= nil then
+  if network_red ~= nil and network_red.signals ~= nil then
     for _k, signal in pairs(network_red.signals) do
       if signal ~= nil and signal.signal.type == 'item' then
         new_signal = {};
@@ -89,7 +87,7 @@ function get_circuit_signals(entity)
       end
     end
   end
-  if network_green ~= nil then
+  if network_green ~= nil and network_green.signals ~= nil then
     for _k, signal in pairs(network_green.signals) do
       if signal ~= nil and signal.signal.type == 'item' then
         new_signal = {};
