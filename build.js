@@ -1,8 +1,7 @@
 const fs = require('fs');
 const path = require('path');
-const exec = require('child_process').exec;
-const AdmZip = require('adm-zip');
-const readdirp = require('readdirp');
+const util = require('util');
+const archiver = require('archiver');
 
 function main() {
   if (!process.argv[2]) {
@@ -24,43 +23,29 @@ async function build(mod) {
   const filename = `${info.name}_${info.version}`;
   await createBuildDirectory(dir);
   await zip(mod, dir, filename);
-  // process.exit();
 }
 
 async function createBuildDirectory() {
-  await promisify(fs.mkdir, path.join(__dirname, 'build')).catch((e) => {});
-  // await promisify(fs.mkdir, dir).catch((e) => {});
-}
-
-function promisify(fn, ...args) {
-  return new Promise((resolve, reject) => {
-    fn(...args, (err, ...result) => {
-      if (err) reject(err);
-      else resolve(...result);
-    });
-  });
+  await util.promisify(fs.mkdir)(path.join(__dirname, 'build')).catch((e) => {});
 }
 
 function zip(directory, destination, filename) {
   return new Promise((resolve, reject) => {
-    console.log(`Zipping ${directory}...`);
-    var zip = new AdmZip();
-    let progress = [];
-    readdirp({root: directory}).on('data', async (file) => {
-      progress.push(promisify(fs.readFile, file.fullPath).then(content => {
-        let zippath = filename + '/' + file.path.replace(/\\/g, '/');
-        zip.addFile(zippath, content, '', 0644 << 16);
-        console.log(`- ${file.path} [${Math.round(content.length / 102.4)/10}kb] added`);
-      }));
-    }).on('end', () => {
-      Promise.all(progress).then(() => {
-        zip.writeZip(path.resolve(destination, `${filename}.zip`), () => {
-          console.log('test');
-        });
-        console.log(`Done: ${path.resolve(destination, `${filename}.zip`)}`);
-        resolve();
-      });
+    console.log(`Zipping...`);
+    var output_path = path.resolve(destination, `${filename}.zip`);
+    var output = fs.createWriteStream(output_path);
+    var archive = archiver('zip', {
+      zlib: { level: 9 } // Sets the compression level.
     });
+
+    archive.directory(directory, false);
+
+    output.on('close', () => {
+      console.log(`Done: ${output_path} [${Math.round(archive.pointer() / 102.4)/10}kb]`);
+    });
+
+    archive.pipe(output);
+    archive.finalize();
   });
 }
 
