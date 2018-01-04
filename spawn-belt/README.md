@@ -12,6 +12,8 @@ With circuit network
 Connect the spawn belt using a red or green wire and send a signal to it, it will spawn the item with the highest signal count, regardless of green/red color.
 
 # Changelog
+### 1.0.7
+* Added support for Factorio 0.16.x
 ### 1.0.6
 * Fixed crash when connecting circuit network with no signals
 * Fixed crash when deconstructing while globals were not initialized
@@ -30,3 +32,6 @@ Connect the spawn belt using a red or green wire and send a signal to it, it wil
 * Fixed a occasional crash when placing a belt after you've removed all others.
 ### 1.0.0
 * Added circuit network listeners for spawn belt and performance improvements
+
+# Contributors
+* [isitLoVe](https://github.com/isitLoVe)
