@@ -11,6 +11,8 @@ Ore patches cannot empty and are unlimted and automatically refill, configure nu
 Having refill enabled will cause lag spikes on the interval, this is likely to cause issues on multiplayer. Setting the time high is reccomended if you use it. For this reason it is disabled by default, I am still looking for more multiplayer-friendly ways to handle refilling ore patches.
 
 # Changelog
+### 1.0.8
+* Updated for version 0.16
 ### 1.0.7
 * Removed disable mod option, storing original resource numbers proved to be too much
 * Added disable interval option which is enabled by default
