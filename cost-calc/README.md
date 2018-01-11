@@ -7,6 +7,5 @@ Cost calc
 Script to calculate resource costs to craft specific items
 
 #### Todo
-* Calculate crafting machines required to craft the items
-* Count in production module effects
 * Stats on oil cracking and ore mining
+* Improve tooling, seperate code nicely and have a build step
