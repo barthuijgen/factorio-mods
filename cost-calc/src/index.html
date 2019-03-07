@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Factorio cost calc</title>
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.2/css/materialize.min.css"
+    />
+    <style>
+      .material-tooltip {
+        white-space: pre;
+      }
+    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  </head>
+  <body>
+    <header>
+      <nav>
+        <div class="nav-wrapper" style="padding:0 10px;">
+          <span class="brand-logo">Factorio cost calc</span>
+          <span class="right">Last included recipe change: v0.17.6</span>
+        </div>
+      </nav>
+    </header>
+    <div>
+      <div class="row" style="margin-top:20px;margin-bottom:0;">
+        <div class="input-field col s2">
+          <input
+            value="2000"
+            id="automation-science-pack"
+            type="number"
+            onChange="calculate()"
+          />
+          <label for="automation-science-pack">automation-science-pack</label>
+        </div>
+        <div class="input-field col s2">
+          <input
+            value="2000"
+            id="logistic-science-pack"
+            type="number"
+            onChange="calculate()"
+          />
+          <label for="logistic-science-pack">logistic-science-pack</label>
+        </div>
+        <div class="input-field col s2">
+          <input
+            value="2000"
+            id="chemical-science-pack"
+            type="number"
+            onChange="calculate()"
+          />
+          <label for="chemical-science-pack">chemical-science-pack</label>
+        </div>
+        <div class="input-field col s2">
+          <input
+            value="0"
+            id="military-science-pack"
+            type="number"
+            onChange="calculate()"
+          />
+          <label for="military-science-pack">military-science-pack</label>
+        </div>
+        <div class="input-field col s2">
+          <input
+            value="2000"
+            id="production-science-pack"
+            type="number"
+            onChange="calculate()"
+          />
+          <label for="production-science-pack">production-science-pack</label>
+        </div>
+        <div class="input-field col s2">
+          <input
+            value="2000"
+            id="utility-science-pack"
+            type="number"
+            onChange="calculate()"
+          />
+          <label for="utility-science-pack">utility-science-pack</label>
+        </div>
+      </div>
+      <div class="row" style="margin-bottom:0;">
+        <div class="input-field col s2">
+          <input
+            value="200"
+            id="rocket-part"
+            type="number"
+            onChange="calculate()"
+          />
+          <label for="rocket-part">rocket-part</label>
+        </div>
+        <div class="input-field col s2">
+          <input
+            value="2"
+            id="satellite"
+            type="number"
+            onChange="calculate()"
+          />
+          <label for="satellite">satellite</label>
+        </div>
+        <div class="input-field col s2">
+          <input value="10" id="margin" type="number" onChange="calculate()" />
+          <label for="margin">percentage margin</label>
+        </div>
+        <div class="col s6">
+          Total resources required to craft to make your goal.<br />
+          Todo: Calculate oil cracking.<br />
+          Feedback: whisper on
+          <a target="_blank" href="https://www.twitch.tv/barrykun">twitch</a>,
+          pm on
+          <a target="_blank" href="https://www.reddit.com/user/makurayami">
+            reddit
+          </a>
+          or create an issue on
+          <a
+            target="_blank"
+            href="https://github.com/MakuraYami/factorio-mods/tree/master/cost-calc"
+          >
+            github
+          </a>
+        </div>
+      </div>
+      <div class="row" style="margin-bottom:0;">
+        <a class="waves-effect waves-light btn" onClick="toggleEditMode()"
+          >Toggle edit mode</a
+        >
+        <a class="waves-effect waves-light btn" onClick="toggleItemSort()"
+          >Toggle priority sort</a
+        >
+      </div>
+      <div class="row">
+        <table class="bordered highlight">
+          <thead>
+            <tr>
+              <th>Item</th>
+              <th
+                class="tooltipped"
+                data-delay="0"
+                data-tooltip="Includes bonus of productivity"
+              >
+                Amount
+              </th>
+              <th
+                class="tooltipped"
+                data-delay="0"
+                data-tooltip="Total costs to craft these items"
+              >
+                Costs
+              </th>
+              <th
+                class="tooltipped"
+                data-delay="0"
+                data-tooltip="How much of the crafted amount goes to what"
+              >
+                Usage share
+              </th>
+              <th
+                class="tooltipped"
+                data-delay="0"
+                data-tooltip="Total seconds craft time | Edit mode: factory craft speed"
+              >
+                Craft time
+              </th>
+              <th
+                class="tooltipped"
+                data-delay="0"
+                data-tooltip="based on per minute build"
+              >
+                Crafters
+              </th>
+              <th>Production%</th>
+            </tr>
+          </thead>
+          <tbody id="data-table"></tbody>
+        </table>
+      </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/lodash/4.17.4/lodash.min.js"></script>
+    <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.2/js/materialize.min.js"></script>
+    <script src="./main.js"></script>
+  </body>
+</html>

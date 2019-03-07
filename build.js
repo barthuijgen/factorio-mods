@@ -1,11 +1,11 @@
-const fs = require('fs');
-const path = require('path');
-const util = require('util');
-const archiver = require('archiver');
+const fs = require("fs");
+const path = require("path");
+const util = require("util");
+const archiver = require("archiver");
 
 function main() {
   if (!process.argv[2]) {
-    return console.log('Please supply a directory name as argument');
+    return console.log("Please supply a directory name as argument");
   }
 
   let mod = path.join(__dirname, process.argv[2]);
@@ -18,7 +18,7 @@ function main() {
 
 async function build(mod) {
   console.log(`Building ${mod}`);
-  const info = JSON.parse(fs.readFileSync(path.join(mod, 'info.json'), 'utf8'));
+  const info = JSON.parse(fs.readFileSync(path.join(mod, "info.json"), "utf8"));
   const dir = path.resolve(`build`);
   const filename = `${info.name}_${info.version}`;
   await createBuildDirectory(dir);
@@ -26,7 +26,9 @@ async function build(mod) {
 }
 
 async function createBuildDirectory() {
-  await util.promisify(fs.mkdir)(path.join(__dirname, 'build')).catch((e) => {});
+  await util
+    .promisify(fs.mkdir)(path.join(__dirname, "build"))
+    .catch(e => {});
 }
 
 function zip(directory, destination, filename) {
@@ -34,14 +36,16 @@ function zip(directory, destination, filename) {
     console.log(`Zipping...`);
     var output_path = path.resolve(destination, `${filename}.zip`);
     var output = fs.createWriteStream(output_path);
-    var archive = archiver('zip', {
-      zlib: { level: 9 } // Sets the compression level.
+    var archive = archiver("zip", {
+      zlib: { level: 9 }
     });
 
     archive.directory(directory, false);
 
-    output.on('close', () => {
-      console.log(`Done: ${output_path} [${Math.round(archive.pointer() / 102.4)/10}kb]`);
+    output.on("close", () => {
+      console.log(
+        `Done: ${output_path} [${Math.round(archive.pointer() / 102.4) / 10}kb]`
+      );
     });
 
     archive.pipe(output);
