@@ -1,33 +1,34 @@
-const recipe = require('./recipe');
-const _ = require('lodash');
+const _ = require("lodash");
+const recipe = require("../src/data.json");
 
 // checkMissingIngredients();
 
-// console.log(JSON.stringify(recipe)); process.exit();
+// console.log(JSON.stringify(recipe));
+// process.exit();
 
 // Products to produce
 let produce = {
-  'science-pack-1': 2000,
-  'science-pack-2': 2000,
-  'science-pack-3': 2000,
+  "automation-science-pack": 2000,
+  "logistic-science-pack": 2000,
+  "chemical-science-pack": 2000,
   // 'military-science-pack': 1,
-  'production-science-pack': 2000,
-  'high-tech-science-pack': 2000,
-  'rocket-part': 200,
-  'satellite': 2
+  "production-science-pack": 2000,
+  "utility-science-pack": 2000,
+  "rocket-part": 200,
+  satellite: 2
 };
 
 let costs = {
-  items: {},
+  items: {}
 };
 
 let categoryEffects = {
-  'smelting': { productivity: 20 },
-  'crafting-with-fluid': { productivity: 40 },
-  'chemistry': { productivity: 30 },
-  'crafting': {productivity: 40},
-  'resource': {productivity: 0},
-  'rest': { productivity: 40 },
+  smelting: { productivity: 20 },
+  "crafting-with-fluid": { productivity: 40 },
+  chemistry: { productivity: 30 },
+  crafting: { productivity: 40 },
+  resource: { productivity: 0 },
+  rest: { productivity: 40 }
 };
 
 _.forOwn(produce, (times, item_name) => {
@@ -49,8 +50,8 @@ function addIngredientCosts(item, times) {
         production_bonus: effects.productivity
       };
     }
-    let add = (amount * times) * (1 - effects.productivity / 100);
-    costs.items[name].time += (add * subitem.time);
+    let add = amount * times * (1 - effects.productivity / 100);
+    costs.items[name].time += add * subitem.time;
     costs.items[name].amount += add;
     costs.items[name].crafters = Math.ceil(costs.items[name].time / 60 / 5.5);
     addIngredientCosts(recipe[name], times * amount);
@@ -58,14 +59,14 @@ function addIngredientCosts(item, times) {
 }
 
 console.log('Note: "crafters" expect to be crafting at 5.5 times speed');
-console.log('To produce:', JSON.stringify(produce, null, 2));
-console.log('Costs:', JSON.stringify(costs, null, 2));
+console.log("To produce:", JSON.stringify(produce, null, 2));
+console.log("Costs:", JSON.stringify(costs, null, 2));
 
 function checkMissingIngredients() {
-  _.forOwn(recipe, (item) => {
+  _.forOwn(recipe, item => {
     _.forOwn(item.ingredients, (amount, name) => {
       if (!_.has(recipe, name)) {
-        console.log('Missing:', name);
+        console.log("Missing:", name);
       }
     });
   });
