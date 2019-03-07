@@ -1,7 +1,9 @@
 steps:
   - name: gcr.io/cloud-builders/npm
+    dir: "cost-calc"
     args: ["install"]
   - name: gcr.io/cloud-builders/npm
+    dir: "cost-calc"
     args: ["run", "build"]
   - name: gcr.io/cloud-builders/gsutil
-    args: ["cp", "./dist/*", "${_DEPLOY_BUCKET}"]
+    args: ["cp", "dist/*", "gs://${_DEPLOY_BUCKET}"]

@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "parcel build src/index.html",
+    "build": "parcel build src/index.html --public-url=./",
     "dev": "parcel src/index.html"
   },
   "author": "Barrykun",
