@@ -21,6 +21,27 @@ script.on_load(function(event)
   end
 end)
 
+script.on_configuration_changed(function(event)
+  -- Any mod has been changed/added/removed, including base game updates.
+  if event.mod_changes then
+    -- Changes for this mod
+    local changes = event.mod_changes["spawn-belt"];
+    if changes then -- This Mod has changed
+      game.print("spawn-belt: Updated from ".. tostring(changes.old_version) .. " to " .. tostring(changes.new_version));
+      initalize_globals();
+      for k, belt in ipairs(belts) do
+        if(belt["entity"]) then
+          belt["item"] = spawn_item;
+          belt["chest"] = nil;
+          find_chest(belt);
+        else
+          table.remove(belts, k);
+        end
+      end
+    end
+  end
+end)
+
 function onBuiltEntity(event)
   if event.created_entity.name == "spawn-belt" 
   or event.created_entity.name == "void-belt" then
