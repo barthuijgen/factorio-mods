@@ -1,6 +1,6 @@
 # Unlimited Resources
 
-Ore patches cannot empty and are unlimted and automatically refill, configure numbers in mod settings!
+Ore patches cannot empty and are unlimited and automatically refill, configure numbers in mod settings!
 
 - When a ore patch depletes it is automatically refilled to the defined amount
 - When new parts of the map are generated ore patches are set to defined amount
@@ -8,9 +8,9 @@ Ore patches cannot empty and are unlimted and automatically refill, configure nu
 
 ## Known issues
 
-Having refill enabled will cause lag spikes on the interval, this is likely to cause issues on multiplayer. Setting the time high is reccomended if you use it. For this reason it is disabled by default, I am still looking for more multiplayer-friendly ways to handle refilling ore patches.
+Having refill enabled will cause lag spikes on the interval, this is likely to cause issues on multiplayer. Setting the time high is recommended if you use it. For this reason it is disabled by default, I am still looking for more multiplayer-friendly ways to handle refilling ore patches.
 
-# Changelog
+# Change log
 
 ### 1.0.8
 

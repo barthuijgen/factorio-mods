@@ -45,7 +45,7 @@ async function watch(mod) {
       watchDirectory(file.fullPath, mod, destination);
     })
     .on("error", reason => {
-      reject(reason);
+      console.error(reason);
     })
     .on("end", () => {
       console.log(`Now watching all files in ${mod}`);
