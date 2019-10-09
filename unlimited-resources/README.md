@@ -12,6 +12,7 @@ Ore patches cannot empty and are unlimited and automatically refill, configure n
 
 - Changed oil updates to timer
 - Ores are only updated when depleted
+- Added German translation
 
 ### 1.0.8
 
