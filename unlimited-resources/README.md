@@ -3,14 +3,15 @@
 Ore patches cannot empty and are unlimited and automatically refill, configure numbers in mod settings!
 
 - When a ore patch depletes it is automatically refilled to the defined amount
+- Oil deposits are refreshed by a configurable timer
 - When new parts of the map are generated ore patches are set to defined amount
-- When you enable interval refill, ore patches are set to defined amount on interval
-
-## Known issues
-
-Having refill enabled will cause lag spikes on the interval, this is likely to cause issues on multiplayer. Setting the time high is recommended if you use it. For this reason it is disabled by default, I am still looking for more multiplayer-friendly ways to handle refilling ore patches.
 
 # Change log
+
+### 1.1.0
+
+- Changed oil updates to timer
+- Ores are only updated when depleted
 
 ### 1.0.8
 
