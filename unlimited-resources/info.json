@@ -1,10 +1,10 @@
 {
   "name": "Unlimited-Resources",
-  "version": "1.0.8",
+  "version": "1.1.0",
   "factorio_version": "0.17",
   "title": "Unlimited Resources",
   "author": "Barry",
   "homepage": "https://github.com/MakuraYami/factorio-mods/tree/master/unlimited-resources",
   "license": "https://github.com/MakuraYami/factorio-mods/blob/master/LICENSE",
-  "description": "Ore patches and oil never empty! This mod keeps the values high instead of setting it to infinite and supports settings."
+  "description": "Ore deposits get refreshed when emptied. Oil will be refreshed based on a timer. This mod does NOT use yield, ie doesn't produce higher output after 0.17."
 }
