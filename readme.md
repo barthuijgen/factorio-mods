@@ -3,7 +3,7 @@
 #### build zip file
 
 ```
-node build <directory>
+yarn build <directory>
 ```
 
 #### watch a directory.
@@ -11,10 +11,10 @@ node build <directory>
 This copies the mod over to the factorio mod directory and automatically applies changes.
 
 ```
-node watch <directory>
+yarn watch <directory>
 ```
 
-For Windows `%APPDATA%/.factorio/mods`
+For Windows `%APPDATA%/Factorio/mods`
 
 For Linux `~/.factorio/mods`
 

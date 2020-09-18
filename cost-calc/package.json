@@ -10,7 +10,7 @@
   "author": "Barrykun",
   "license": "MPL-2.0",
   "dependencies": {
-    "lodash": "^4.17.19",
+    "lodash": "^4.17.20",
     "parcel": "^1.12.4"
   },
   "devDependencies": {
