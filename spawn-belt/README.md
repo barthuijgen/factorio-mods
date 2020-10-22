@@ -12,6 +12,10 @@ Connect the spawn belt using a red or green wire and send a signal to it, it wil
 
 # Changelog
 
+### 1.0.9
+
+- Added support for Factorio 1.0.x
+
 ### 1.0.8
 
 - Added support for Factorio 0.17.x
