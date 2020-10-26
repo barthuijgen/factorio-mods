@@ -1,6 +1,6 @@
 # Spawn belt
 
-Spawn a fully compressed belt of any item, configurable by chest and/or circuit network.
+Spawn a fully compressed belt of any item, configurable by chest or circuit network.
 
 ## With chest
 
@@ -10,7 +10,18 @@ Place a chest behind the spawn belt and it will spawn the item type that was las
 
 Connect the spawn belt using a red or green wire and send a signal to it, it will spawn the item with the highest signal count, regardless of green/red color.
 
+## Measure throughput
+
+Placing a chest behind the void belt will automatically fill it with the contents that the belt cleared in the last second, showing a rough throughput per second.
+This can also be achieved with smart circuitry logic and a lamp-display but this is the most compact solution I could find.
+
 # Changelog
+
+### 1.0.10
+
+- Recoloured the void-belt to be red
+- When placing a chest after a void-belt it will contain the items cleared in the last second
+- Removed the default item "iron-ore", when placed spawn belts now do nothing.
 
 ### 1.0.9
 

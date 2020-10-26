@@ -1,7 +1,7 @@
 local belts;
-local spawn_item = "iron-ore";
+local spawn_item = nil;
 local chest_detection_rate = 29;
-local chest_clear_rate = 3;
+local belt_clear_rate = 5;
 local circuit_detection_rate = 30;
 
 remote.add_interface("spawnbelt", {
@@ -33,6 +33,8 @@ script.on_configuration_changed(function(event)
         if(belt["entity"]) then
           belt["item"] = spawn_item;
           belt["chest"] = nil;
+          belt["void_chest"] = {};
+          belt["clear_counter"] = {};
           find_chest(belt);
         else
           table.remove(belts, k);
@@ -51,6 +53,7 @@ function onBuiltEntity(event)
     new_belt["item"] = spawn_item;
     new_belt["chest"] = nil;
     new_belt["enabled"] = true;
+    new_belt["clear_counter"] = {};
     table.insert(belts, new_belt)
     find_chest(new_belt);
   end
@@ -147,7 +150,6 @@ function find_chest(belt)
       belt.item = inventory[1].name;
     end
   end
-  return belt;
 end
 
 function find_signal(belt)
@@ -167,7 +169,32 @@ function find_signal(belt)
       belt.item = highest_count.name;
     end
   end
-  return belt;
+end
+
+function find_chest_void(belt)
+  x = belt.entity.position.x;
+  y = belt.entity.position.y;
+  if belt.entity.direction == 0 then
+    y = y - 1;
+  elseif belt.entity.direction == 2 then
+    x = x + 1;
+  elseif belt.entity.direction == 4 then
+    y = y + 1;
+  elseif belt.entity.direction == 6 then
+    x = x - 1;
+  end
+
+  chests = belt.entity.surface.find_entities_filtered({position = {x,y}, type="container"});
+  if #chests > 0 then
+    chest = chests[1];
+    if chest.valid then
+      belt.void_chest = chest;
+    end
+  end
+  if belt.void_chest and belt.void_chest.valid == false then
+    _print('setting belt void_chest nil')
+    belt.void_chest = nil;
+  end
 end
 
 function tick_belts(tick)
@@ -198,11 +225,54 @@ function tick_belts(tick)
             line2.insert_at_back({name = belt.item});
           end
         end
-      elseif belt.entity.name == "void-belt"  and tick.tick % chest_clear_rate == 0 then
-        belt.entity.get_transport_line(1).clear();
-        belt.entity.get_transport_line(2).clear();
-      end
+      elseif belt.entity.name == "void-belt" then
 
+        -- Print belt contents every second
+        if tick.tick % 60 == 0 then
+          if belt.void_chest and belt.void_chest.valid then
+            inventory = belt.void_chest.get_inventory(defines.inventory.chest);
+            if inventory ~= nil and inventory.valid == true  then
+              inventory.clear()
+              for k,count in pairs(belt.clear_counter) do
+                inventory.insert({name=k, count=count})
+              end
+            end
+          end
+          belt.clear_counter = {}
+        end
+
+        if tick.tick % chest_detection_rate == 0 then
+          find_chest_void(belt);
+        end
+
+        -- Clear belts 
+        if tick.tick % belt_clear_rate == 0 then
+          line1 = belt.entity.get_transport_line(1);
+          line2 = belt.entity.get_transport_line(2);
+
+          -- Read line contents
+          line1content = line1.get_contents();
+          for k,count in pairs(line1content) do
+            if belt.clear_counter[k] then 
+              belt.clear_counter[k] = belt.clear_counter[k]  + count
+            else
+              belt.clear_counter[k] = count
+            end
+          end
+          line2content = line2.get_contents();
+          for k,count in pairs(line2content) do
+            if belt.clear_counter[k] then 
+              belt.clear_counter[k] = belt.clear_counter[k]  + count
+            else
+              belt.clear_counter[k] = count
+            end
+          end
+
+          -- Clear line
+          belt.entity.get_transport_line(1).clear();
+          belt.entity.get_transport_line(2).clear();
+        end
+      end
     end
   end
 end

@@ -3,19 +3,24 @@ import { promisify } from "util";
 import * as fs from "fs-extra";
 import * as readdirp from "readdirp";
 
-function readdir(root: string, opts: any, handler: (file: any) => Promise<any>) {
+function readdir(
+  root: string,
+  opts: readdirp.ReaddirpOptions,
+  handler: (file: any) => Promise<any>
+) {
   if (typeof opts === "function") {
     handler = opts;
     opts = {};
   }
-  opts = Object.assign(opts, { root });
   return new Promise((resolve, reject) => {
     let actions: Promise<any>[] = [];
-    readdirp(opts)
+
+    readdirp(root, opts)
       .on("data", (file) => {
         actions.push(handler(file));
       })
       .on("error", (reason) => {
+        console.log("readdir error", reason);
         reject(reason);
       })
       .on("end", () => {
@@ -24,33 +29,33 @@ function readdir(root: string, opts: any, handler: (file: any) => Promise<any>) 
   });
 }
 
-async function watch(mod: string) {
+async function watch(mod_path: string) {
   const modDir = getModDirectory();
   if (!modDir) return console.log("Error determining mod directory");
-  const info = JSON.parse(fs.readFileSync(path.join(mod, "info.json"), "utf8"));
+  const info = JSON.parse(fs.readFileSync(path.join(mod_path, "info.json"), "utf8"));
   const destination = path.join(modDir, `${info.name}_${info.version}`);
 
+  console.log(`Target directory ${destination}`);
   await promisify(fs.mkdir)(destination).catch(() => {});
-
   console.log("Clearing old files...");
   await clearDirectory(destination);
   console.log("Copying new files...");
-  await copyDirectory(mod, destination);
+  await copyDirectory(mod_path, destination);
 
-  console.log(`Watching ${mod}`);
+  console.log(`Watching ${mod_path}`);
 
   // Watch main directory
-  watchDirectory(mod, mod, destination);
+  watchDirectory(mod_path, mod_path, destination);
   // Watch sub directories (fs.watch is buggy in this)
-  readdirp(mod, { type: "directories" })
+  readdirp(mod_path, { type: "directories" })
     .on("data", async (file) => {
-      watchDirectory(file.fullPath, mod, destination);
+      watchDirectory(file.fullPath, mod_path, destination);
     })
     .on("error", (reason) => {
       console.error(reason);
     })
     .on("end", () => {
-      console.log(`Now watching all files in ${mod}`);
+      console.log(`Now watching all files in ${mod_path}`);
     });
 }
 
@@ -69,7 +74,7 @@ function watchDirectory(dir: string, source: string, destination: string) {
 function copyDirectory(from: string, to: string) {
   return readdir(from, { type: "files_directories", alwaysStat: true }, async (file) => {
     let dest = path.resolve(to, path.relative(from, file.fullPath));
-    if (file.stat.isDirectory()) {
+    if (file.stats.isDirectory()) {
       return promisify(fs.mkdir)(dest).catch(() => {});
     }
     fs.createReadStream(file.fullPath).pipe(fs.createWriteStream(dest));
@@ -80,9 +85,9 @@ function clearDirectory(directory: string) {
   return new Promise((resolve, reject) => {
     let files: string[] = [];
     let folders: string[] = [];
-    readdirp(directory, { type: "files_directories" })
+    readdirp(directory, { type: "files_directories", alwaysStat: true })
       .on("data", async (file) => {
-        if (file.stat.isDirectory()) {
+        if (file.stats.isDirectory()) {
           folders.push(file.fullPath);
         } else {
           files.push(file.fullPath);
@@ -110,11 +115,11 @@ function main() {
     return console.log("Please supply a mod directory name as argument");
   }
 
-  let mod = path.join(__dirname, process.argv[2]);
-  fs.stat(mod, (err, x) => {
-    if (err) return console.log(`The directory ${mod} does not exist`);
-    if (!x.isDirectory()) return console.log(`${mod} is not a directory`);
-    watch(mod).catch((reason) => {
+  let mod_path = path.join(__dirname, "../", process.argv[2]);
+  fs.stat(mod_path, (err, x) => {
+    if (err) return console.log(`The directory ${mod_path} does not exist`);
+    if (!x.isDirectory()) return console.log(`${mod_path} is not a directory`);
+    watch(mod_path).catch((reason) => {
       console.log(reason);
     });
   });

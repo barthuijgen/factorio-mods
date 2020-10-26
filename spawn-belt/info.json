@@ -1,10 +1,10 @@
 {
   "name": "spawn-belt",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "factorio_version": "1.0",
   "title": "Spawn Belt",
   "author": "Barry",
-  "homepage": "https://github.com/MakuraYami/factorio-mods/tree/master/spawn-belt",
-  "license": "https://github.com/MakuraYami/factorio-mods/blob/master/LICENSE",
+  "homepage": "https://github.com/barthuijgen/factorio-mods/tree/master/spawn-belt",
+  "license": "https://raw.githubusercontent.com/barthuijgen/factorio-mods/master/spawn-belt/LICENSE",
   "description": "Create spawn & void belts to test throughput"
 }
