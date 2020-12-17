@@ -12,10 +12,15 @@ Connect the spawn belt using a red or green wire and send a signal to it, it wil
 
 ## Measure throughput
 
-Placing a chest behind the void belt will automatically fill it with the contents that the belt cleared in the last second, showing a rough throughput per second.
-This can also be achieved with smart circuitry logic and a lamp-display but this is the most compact solution I could find.
+Placing a chest or a constant combinator behind the void belt will automatically fill it with the contents that the belt cleared in the last second, showing a rough throughput per second.
 
 # Changelog
+
+### 1.0.11
+
+- Updated counting logic of void-belts to take last 10 seconds average
+- Small fixes and code cleanup
+- Added constant combinators to be automatically set when placed after a void-belt
 
 ### 1.0.10
 
