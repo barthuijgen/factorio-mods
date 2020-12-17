@@ -16,6 +16,10 @@ Placing a chest or a constant combinator behind the void belt will automatically
 
 # Changelog
 
+### 1.0.12
+
+- Added support for Factorio 1.1.x
+
 ### 1.0.11
 
 - Updated counting logic of void-belts to take last 10 seconds average
