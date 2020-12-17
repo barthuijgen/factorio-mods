@@ -12,6 +12,10 @@ Having refill enabled will cause lag spikes on the interval, this is likely to c
 
 # Change log
 
+### 1.0.10
+
+- Updated for version 1.1
+
 ### 1.0.9
 
 - Updated for version 0.18
