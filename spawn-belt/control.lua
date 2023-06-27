@@ -212,7 +212,6 @@ end
 
 function tick_belts(tick)
   for k, belt in ipairs(belts) do
-    itemtwo = nil;
     if belt.entity.valid ~= true then
       table.remove(belts, k);
       destroy_globals();
@@ -224,7 +223,7 @@ function tick_belts(tick)
           chest = find_entity_before(belt, "container");
           if chest ~= nil then
             belt.item = get_chest_item(1, chest);
-            itemtwo = get_chest_item(2, chest);
+            belt.itemtwo = get_chest_item(2, chest);
           end
         end
 
@@ -248,8 +247,8 @@ function tick_belts(tick)
           end
           line2 = belt.entity.get_transport_line(2);
           if line2.can_insert_at_back() then
-            if itemtwo then
-              line2.insert_at_back({name = itemtwo});
+            if belt.itemtwo then
+              line2.insert_at_back({name = belt.itemtwo});
             else
               line2.insert_at_back({name = belt.item});
             end
