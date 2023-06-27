@@ -161,14 +161,14 @@ function find_entity_after(belt, type)
   return nil;
 end
 
-function get_chest_item(chest)
+function get_chest_item(num, chest)
   inventory = chest.get_inventory(defines.inventory.chest);
   if inventory ~= nil
   and inventory.valid == true 
   and inventory.is_empty() == false 
-  and inventory[1].valid == true
-  and inventory[1].valid_for_read == true then
-    return inventory[1].name;
+  and inventory[num].valid == true
+  and inventory[num].valid_for_read == true then
+    return inventory[num].name;
   end
   return nil;
 end
@@ -222,7 +222,8 @@ function tick_belts(tick)
         if tick.tick % entity_detection_rate == 0 then
           chest = find_entity_before(belt, "container");
           if chest ~= nil then
-            belt.item = get_chest_item(chest);
+            belt.item = get_chest_item(1, chest);
+            belt.itemtwo = get_chest_item(2, chest);
           end
         end
 
@@ -246,7 +247,11 @@ function tick_belts(tick)
           end
           line2 = belt.entity.get_transport_line(2);
           if line2.can_insert_at_back() then
-            line2.insert_at_back({name = belt.item});
+            if belt.itemtwo then
+              line2.insert_at_back({name = belt.itemtwo});
+            else
+              line2.insert_at_back({name = belt.item});
+            end
           end
         end
       elseif belt.entity.name == "void-belt" then
