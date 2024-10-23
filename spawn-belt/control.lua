@@ -6,18 +6,18 @@ local history_limit = 10;
 
 remote.add_interface("spawnbelt", {
   setitem = function(item)
-    global.spawn_item = item;
-    spawn_item = global.spawn_item;
+    storage.spawn_item = item;
+    spawn_item = storage.spawn_item;
   end
 })
 
 script.on_load(function(event)
-  if global.belts ~= nil then
-    belts = global.belts;
+  if storage.belts ~= nil then
+    belts = storage.belts;
     script.on_event(defines.events.on_tick, tick_belts);
   end
-  if global.spawn_item ~= nil then
-    spawn_item = global.spawn_item;
+  if storage.spawn_item ~= nil then
+    spawn_item = storage.spawn_item;
   end
 end)
 
@@ -42,12 +42,13 @@ script.on_configuration_changed(function(event)
 end)
 
 function onBuiltEntity(event)
-  if event.created_entity.name == "spawn-belt" 
-  or event.created_entity.name == "void-belt" then
+  if event.entity.name == "spawn-belt" 
+  or event.entity.name == "void-belt" then
     initalize_globals();
     new_belt = {};
-    new_belt["entity"] = event.created_entity;
+    new_belt["entity"] = event.entity;
     new_belt["item"] = spawn_item;
+    new_belt["quality"] = nil;
     new_belt["counter_chest"] = nil;
     new_belt["enabled"] = true;
     new_belt["clear_counter"] = {now={}, history={}};
@@ -76,17 +77,17 @@ function _print(...)
 end
 
 function initalize_globals()
-  if global.belts == nil or belts == nil then
-    global.belts = {};
-    belts = global.belts;
+  if storage.belts == nil or belts == nil then
+    storage.belts = {};
+    belts = storage.belts;
     script.on_event(defines.events.on_tick, tick_belts);
   end
 end
 
 function destroy_globals()
-  if #global.belts == 0 then
+  if #storage.belts == 0 then
     belts = nil;
-    global.belts = nil;
+    storage.belts = nil;
     script.on_event(defines.events.on_tick, nil);
   end
 end
@@ -94,26 +95,28 @@ end
 function get_circuit_signals(entity)
   local signals = {};
   network = nil;
-  network_red = entity.get_circuit_network(defines.wire_type.red);
-  network_green = entity.get_circuit_network(defines.wire_type.green);
-  if network_red ~= nil and network_red.signals ~= nil then
-    for _k, signal in pairs(network_red.signals) do
-      if signal ~= nil and signal.signal.type == 'item' then
+  red_singals = entity.get_signals(defines.wire_connector_id.circuit_red);
+  green_signals = entity.get_signals(defines.wire_connector_id.circuit_green);
+  if red_singals ~= nil then
+    for _k, signal in pairs(red_singals) do
+      if signal ~= nil and signal.signal.type == nil then
         new_signal = {};
         new_signal["color"] = "red";
         new_signal["count"] = signal.count;
         new_signal["name"] = signal.signal.name;
+        new_signal["quality"] = signal.signal.quality;
         table.insert(signals, new_signal);
       end
     end
   end
-  if network_green ~= nil and network_green.signals ~= nil then
-    for _k, signal in pairs(network_green.signals) do
-      if signal ~= nil and signal.signal.type == 'item' then
+  if green_signals ~= nil then
+    for _k, signal in pairs(green_signals) do
+      if signal ~= nil and signal.signal.type == nil then
         new_signal = {};
         new_signal["color"] = "green";
         new_signal["count"] = signal.count;
         new_signal["name"] = signal.signal.name;
+        new_signal["quality"] = signal.signal.quality;
         table.insert(signals, new_signal);
       end
     end
@@ -126,11 +129,11 @@ function find_entity_before(belt, type)
   y = belt.entity.position.y;
   if belt.entity.direction == 0 then
     y = y + 1;
-  elseif belt.entity.direction == 2 then
-    x = x - 1;
   elseif belt.entity.direction == 4 then
+    x = x - 1;
+  elseif belt.entity.direction == 8 then
     y = y - 1;
-  elseif belt.entity.direction == 6 then
+  elseif belt.entity.direction == 12 then
     x = x + 1;
   end
 
@@ -146,11 +149,11 @@ function find_entity_after(belt, type)
   y = belt.entity.position.y;
   if belt.entity.direction == 0 then
     y = y - 1;
-  elseif belt.entity.direction == 2 then
-    x = x + 1;
   elseif belt.entity.direction == 4 then
+    x = x + 1;
+  elseif belt.entity.direction == 8 then
     y = y + 1;
-  elseif belt.entity.direction == 6 then
+  elseif belt.entity.direction == 12 then
     x = x - 1;
   end
 
@@ -168,22 +171,22 @@ function get_chest_item(chest)
   and inventory.is_empty() == false 
   and inventory[1].valid == true
   and inventory[1].valid_for_read == true then
-    return inventory[1].name;
+    return inventory[1];
   end
   return nil;
 end
 
 function get_highest_signal(signals)
-  highest_count = nil;
+  highest_signal = nil;
   
   for _, signal in pairs(signals) do
-    if highest_count == nil or highest_count.count < signal.count then
-      highest_count = signal;
+    if highest_signal == nil or highest_signal.count < signal.count then
+      highest_signal = signal;
     end
   end
 
-  if highest_count ~= nil then
-    return highest_count.name;
+  if highest_signal ~= nil then
+    return highest_signal;
   end
 
   return nil;
@@ -222,7 +225,9 @@ function tick_belts(tick)
         if tick.tick % entity_detection_rate == 0 then
           chest = find_entity_before(belt, "container");
           if chest ~= nil then
-            belt.item = get_chest_item(chest);
+            chest_item = get_chest_item(chest);
+            belt.item = chest_item.name;
+            belt.quality = chest_item.quality;
           end
         end
 
@@ -231,9 +236,10 @@ function tick_belts(tick)
           signals = get_circuit_signals(belt.entity);
 
           if #signals > 0 then
-            signal_name = get_highest_signal(signals);
-            if signal_name ~= nil then
-              belt.item = signal_name;
+            highest_signal = get_highest_signal(signals);
+            if highest_signal ~= nil then
+              belt.item = highest_signal.name;
+              belt.quality = highest_signal.quality;
             end
           end
         end
@@ -242,11 +248,11 @@ function tick_belts(tick)
           -- Fill the belt with selected item
           line1 = belt.entity.get_transport_line(1);
           if line1.can_insert_at_back() then
-            line1.insert_at_back({name = belt.item});
+            line1.insert_at_back({name = belt.item, quality = belt.quality});
           end
           line2 = belt.entity.get_transport_line(2);
           if line2.can_insert_at_back() then
-            line2.insert_at_back({name = belt.item});
+            line2.insert_at_back({name = belt.item, quality = belt.quality});
           end
         end
       elseif belt.entity.name == "void-belt" then
@@ -262,7 +268,6 @@ function tick_belts(tick)
         -- store belt contents every second if chest or combinator is available
         if tick.tick % 60 == 0 and (belt.counter_chest or belt.counter_combinator) then
           result = get_clear_counter_averages(belt)
-
           if belt.counter_chest then
             inventory = belt.counter_chest.get_inventory(defines.inventory.chest);
             if inventory ~= nil and inventory.valid == true  then
@@ -327,19 +332,19 @@ function tick_belts(tick)
 
           -- Read line contents
           line1content = line1.get_contents();
-          for k,count in pairs(line1content) do
-            if belt.clear_counter.now[k] then 
-              belt.clear_counter.now[k] = belt.clear_counter.now[k]  + count;
+          for _,item in pairs(line1content) do
+            if belt.clear_counter.now[item.name] then 
+              belt.clear_counter.now[item.name] = belt.clear_counter.now[item.name]  + item.count;
             else
-              belt.clear_counter.now[k] = count;
+              belt.clear_counter.now[item.name] = item.count;
             end
           end
           line2content = line2.get_contents();
-          for k,count in pairs(line2content) do
-            if belt.clear_counter.now[k] then 
-              belt.clear_counter.now[k] = belt.clear_counter.now[k]  + count;
+          for _,item in pairs(line2content) do
+            if belt.clear_counter.now[item.name] then 
+              belt.clear_counter.now[item.name] = belt.clear_counter.now[item.name]  + item.count;
             else
-              belt.clear_counter.now[k] = count;
+              belt.clear_counter.now[item.name] = item.count;
             end
           end
 

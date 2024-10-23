@@ -4,13 +4,17 @@ data:extend({
     name = "spawn-belt",
     enabled = true,
     ingredients = {},
-    result = "spawn-belt"
+    results = {
+      {type="item",name="spawn-belt",amount=1}
+    }
   },
   {
     type = "recipe",
     name = "void-belt",
     enabled = true,
     ingredients = {},
-    result = "void-belt"
+    results = {
+      {type="item",name="void-belt",amount=1}
+    }
   }
 })
