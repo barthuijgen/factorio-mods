@@ -1,113 +1,73 @@
 import * as path from "path";
-import { promisify } from "util";
-import * as fs from "fs-extra";
-import * as readdirp from "readdirp";
-
-function readdir(
-  root: string,
-  opts: readdirp.ReaddirpOptions,
-  handler: (file: any) => Promise<any>
-) {
-  if (typeof opts === "function") {
-    handler = opts;
-    opts = {};
-  }
-  return new Promise((resolve, reject) => {
-    let actions: Promise<any>[] = [];
-
-    readdirp(root, opts)
-      .on("data", (file) => {
-        actions.push(handler(file));
-      })
-      .on("error", (reason) => {
-        console.log("readdir error", reason);
-        reject(reason);
-      })
-      .on("end", () => {
-        resolve(Promise.all(actions));
-      });
-  });
-}
+import * as fs from "node:fs/promises";
+import { safeAwait } from "./util";
 
 async function watch(mod_path: string) {
-  const modDir = getModDirectory();
+  const modDir = await getModDirectory();
   if (!modDir) return console.log("Error determining mod directory");
-  const info = JSON.parse(fs.readFileSync(path.join(mod_path, "info.json"), "utf8"));
+  const info = JSON.parse(
+    await fs.readFile(path.join(mod_path, "info.json"), "utf8")
+  );
   const destination = path.join(modDir, `${info.name}_${info.version}`);
 
   console.log(`Target directory ${destination}`);
-  await promisify(fs.mkdir)(destination).catch(() => {});
+
   console.log("Clearing old files...");
   await clearDirectory(destination);
+
+  await fs.mkdir(destination).catch(() => {});
+
   console.log("Copying new files...");
   await copyDirectory(mod_path, destination);
-
-  console.log(`Watching ${mod_path}`);
 
   // Watch main directory
   watchDirectory(mod_path, mod_path, destination);
   // Watch sub directories (fs.watch is buggy in this)
-  readdirp(mod_path, { type: "directories" })
-    .on("data", async (file) => {
-      watchDirectory(file.fullPath, mod_path, destination);
-    })
-    .on("error", (reason) => {
-      console.error(reason);
-    })
-    .on("end", () => {
-      console.log(`Now watching all files in ${mod_path}`);
-    });
-}
-
-function watchDirectory(dir: string, source: string, destination: string) {
-  fs.watch(dir, (type, file) => {
-    console.log("watcher", type, file);
-    let relativeDir = path.relative(source, dir);
-    let from = path.resolve(dir, file);
-    let to = path.resolve(destination, relativeDir, file);
-    console.log("-", from);
-    console.log("-", to);
-    fs.createReadStream(from).pipe(fs.createWriteStream(to));
-  });
-}
-
-function copyDirectory(from: string, to: string) {
-  return readdir(from, { type: "files_directories", alwaysStat: true }, async (file) => {
-    let dest = path.resolve(to, path.relative(from, file.fullPath));
-    if (file.stats.isDirectory()) {
-      return promisify(fs.mkdir)(dest).catch(() => {});
+  const dirFiles = await fs.readdir(mod_path, { recursive: true });
+  for (const file of dirFiles) {
+    if ((await fs.stat(path.join(mod_path, file))).isDirectory()) {
+      watchDirectory(path.join(mod_path, file), mod_path, destination);
     }
-    fs.createReadStream(file.fullPath).pipe(fs.createWriteStream(dest));
-  });
+  }
 }
 
-function clearDirectory(directory: string) {
-  return new Promise((resolve, reject) => {
-    let files: string[] = [];
-    let folders: string[] = [];
-    readdirp(directory, { type: "files_directories", alwaysStat: true })
-      .on("data", async (file) => {
-        if (file.stats.isDirectory()) {
-          folders.push(file.fullPath);
-        } else {
-          files.push(file.fullPath);
-        }
-      })
-      .on("error", (reason) => {
-        reject(reason);
-      })
-      .on("end", () => {
-        folders.sort((a, b) => b.length - a.length);
-        resolve(
-          Promise.all(files.map((path) => promisify(fs.unlink)(path))).then(() => {
-            return Promise.all(folders.map((path) => promisify(fs.rmdir)(path)));
-          })
-        );
-      });
-  });
+async function watchDirectory(
+  dir: string,
+  source: string,
+  destination: string
+) {
+  // console.log(`Watching: ${dir}`);
+  const watcher = fs.watch(dir);
+  for await (const event of watcher) {
+    const { filename, eventType } = event;
+    if (!filename || eventType !== "change") continue;
+    let relativeDir = path.relative(source, dir);
+    let from = path.resolve(dir, filename);
+    let to = path.resolve(destination, relativeDir, filename);
+    console.log("watcher", eventType, filename);
+    console.log("-", from);
+    fs.copyFile(from, to);
+  }
 }
 
-function main() {
+async function copyDirectory(from: string, to: string) {
+  const files = await fs.readdir(from, { recursive: true });
+  for (const file of files) {
+    const source = path.resolve(from, file);
+    const dest = path.resolve(to, path.relative(from, source));
+    if ((await fs.stat(source)).isDirectory()) {
+      await fs.mkdir(dest).catch(() => {});
+    } else {
+      await fs.copyFile(source, dest);
+    }
+  }
+}
+
+async function clearDirectory(directory: string) {
+  await fs.rmdir(directory, { recursive: true });
+}
+
+async function main() {
   if (!getModDirectory()) {
     return console.log("Failed to find mod directory");
   }
@@ -116,19 +76,23 @@ function main() {
   }
 
   let mod_path = path.join(__dirname, "../", process.argv[2]);
-  fs.stat(mod_path, (err, x) => {
-    if (err) return console.log(`The directory ${mod_path} does not exist`);
-    if (!x.isDirectory()) return console.log(`${mod_path} is not a directory`);
-    watch(mod_path).catch((reason) => {
-      console.log(reason);
-    });
+
+  const [error, result] = await safeAwait(fs.stat(mod_path));
+  if (error) return console.log(`The directory ${mod_path} does not exist`);
+  if (!result.isDirectory()) {
+    return console.log(`${mod_path} is not a directory`);
+  }
+
+  console.log(`Watching ${mod_path}`);
+  watch(mod_path).catch((reason) => {
+    console.log(reason);
   });
 }
 
-function getModDirectory() {
+async function getModDirectory() {
   if (process.argv[3]) {
     let dir = path.resolve(process.argv[3]);
-    let stats = fs.statSync(dir);
+    let stats = await fs.stat(dir);
     if (stats && stats.isDirectory()) return dir;
     else return null;
   }
@@ -138,11 +102,11 @@ function getModDirectory() {
   const homedir = os.homedir();
 
   if (platform === "win32" && process.env.APPDATA) {
-    return path.resolve(process.env.APPDATA, "Factorio/mods");
+    return path.join(process.env.APPDATA, "Factorio/mods");
   } else if (platform === "darwin") {
-    return path.resolve(homedir, "/Library/Application Support/factorio/mods");
+    return path.join(homedir, "/Library/Application Support/factorio/mods");
   } else if (homedir) {
-    return path.resolve(homedir, ".factorio/mods");
+    return path.join(homedir, ".factorio/mods");
   }
   return null;
 }

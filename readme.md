@@ -1,9 +1,14 @@
 ## Factorio mods by BarryKun
 
+### Dependencies
+
+- Install Bun
+- Run `bun install`
+
 #### build zip file
 
 ```
-yarn build <directory>
+bun run build <directory>
 ```
 
 #### watch a directory.
@@ -11,7 +16,7 @@ yarn build <directory>
 This copies the mod over to the factorio mod directory and automatically applies changes.
 
 ```
-yarn watch <directory>
+bun run watch <directory>
 ```
 
 For Windows `%APPDATA%/Factorio/mods`

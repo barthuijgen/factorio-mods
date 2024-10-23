@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
-    "lib": ["ES2019"],
-    "strict": true
+    "lib": ["ESNext"],
+    "strict": true,
+    "esModuleInterop": true
   }
 }
