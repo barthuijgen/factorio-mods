@@ -41,6 +41,7 @@ async function watchDirectory(
   for await (const event of watcher) {
     const { filename, eventType } = event;
     if (!filename || eventType !== "change") continue;
+    if (filename.endsWith(".png")) return;
     let relativeDir = path.relative(source, dir);
     let from = path.resolve(dir, filename);
     let to = path.resolve(destination, relativeDir, filename);
