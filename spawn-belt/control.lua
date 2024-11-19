@@ -33,6 +33,7 @@ script.on_configuration_changed(function(event)
         if belt["entity"] then
           belt["counter_chest"] = nil;
           belt["clear_counter"] = {now={}, history={}};
+          belt["stack_size"] = 1;
         else
           table.remove(belts, k);
         end
@@ -49,6 +50,7 @@ function onBuiltEntity(event)
     new_belt["entity"] = event.entity;
     new_belt["item"] = spawn_item;
     new_belt["quality"] = nil;
+    new_belt["stack_size"] = 1;
     new_belt["counter_chest"] = nil;
     new_belt["enabled"] = true;
     new_belt["clear_counter"] = {now={}, history={}};
@@ -226,8 +228,14 @@ function tick_belts(tick)
           chest = find_entity_before(belt, "container");
           if chest ~= nil then
             chest_item = get_chest_item(chest);
-            belt.item = chest_item.name;
-            belt.quality = chest_item.quality;
+            if chest_item ~= nil then
+              belt.item = chest_item.name;
+              belt.quality = chest_item.quality;
+              belt.stack_size = math.min(4, math.max(1, chest_item.count));
+            else
+              belt.item = nil;
+              belt.quality = nil;
+            end
           end
         end
 
@@ -240,6 +248,8 @@ function tick_belts(tick)
             if highest_signal ~= nil then
               belt.item = highest_signal.name;
               belt.quality = highest_signal.quality;
+              belt.stack_size = math.min(4, math.max(1, highest_signal.count));
+              _print(belt);
             end
           end
         end
@@ -248,11 +258,11 @@ function tick_belts(tick)
           -- Fill the belt with selected item
           line1 = belt.entity.get_transport_line(1);
           if line1.can_insert_at_back() then
-            line1.insert_at_back({name = belt.item, quality = belt.quality});
+            line1.insert_at_back({name = belt.item, quality = belt.quality, count = belt.stack_size}, 4);
           end
           line2 = belt.entity.get_transport_line(2);
           if line2.can_insert_at_back() then
-            line2.insert_at_back({name = belt.item, quality = belt.quality});
+            line2.insert_at_back({name = belt.item, quality = belt.quality, count = belt.stack_size}, 4);
           end
         end
       elseif belt.entity.name == "void-belt" then
