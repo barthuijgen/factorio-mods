@@ -289,19 +289,20 @@ function tick_belts(tick)
           end
 
           if belt.counter_combinator and belt.counter_combinator.valid then
-            behaviour = belt.counter_combinator.get_control_behavior()
+            -- Factorio 2.x: constant combinators hold signals in logistic sections
+            local behaviour = belt.counter_combinator.get_control_behavior()
             if behaviour ~= nil then
-              index = 1;
-              new_parameters={}
-              for key,count in pairs(result) do
-                table.insert(new_parameters, {
-                  signal={type="item",name=key},
-                  count=count,
-                  index=index
-                });
-                index = index + 1;
+              local section = behaviour.get_section(1) or behaviour.add_section()
+              if section ~= nil and section.is_manual then
+                local new_filters = {}
+                for key,count in pairs(result) do
+                  table.insert(new_filters, {
+                    value = {type = "item", name = key, quality = "normal"},
+                    min = count
+                  });
+                end
+                section.filters = new_filters;
               end
-              behaviour.parameters = {parameters=new_parameters};
             end
           end
 
